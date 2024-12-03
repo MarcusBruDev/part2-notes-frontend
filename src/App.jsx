@@ -1,5 +1,6 @@
 import Note from './components/Note'
 
+//comentario
 const App = ({ notes }) => {
   return (
     <div>
