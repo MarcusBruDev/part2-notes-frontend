@@ -1,7 +1,7 @@
 import Note from './components/Note'
 import { useState } from 'react'
 
-//comentario
+//comentario otro
 const App = (props) => {
 
   
