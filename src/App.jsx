@@ -1,6 +1,7 @@
 import Note from './components/Note'
 import { useState , useEffect} from 'react'
 import axios from 'axios'
+import noteService from './services/notes'
 //comentario otro
 const App = (props) => {
 
@@ -13,13 +14,12 @@ const App = (props) => {
 
 
   const hook = ()=>{
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response=>{
-        console.log('promise fulfilled')
-        setNotesState(response.data)
+      noteService
+      .getAll()
+      .then(initialNote=>{
+        setNotesState(initialNote )
       })
+      .catch(error=> console.log('Fail'))
 
   }
   console.log(`render ${notes.length} notes`)
@@ -28,21 +28,42 @@ const App = (props) => {
  
 
   const addNote = (event)=>{
-    event.preventDefault();
+    event.preventDefault();   
     
     const newObject = {
       content: newNote,
       important : Math.random()< 0.5,
-      id: notes.length +1
     }
 
-    setNotesState(notes.concat(newObject))
-    setNewNote('')
+      noteService
+      .create(newObject)
+      .then(returnedNote=>{
+        setNotesState(notes.concat(returnedNote))
+        setNewNote('')
+      })
+
+   
   }
 
   const handleNoteChange = (event)=>{
     
     setNewNote(event.target.value)
+  }
+
+  const toggleImportance =(id)=>{
+      
+      //const url = `http://localhost:3001/notes/${id}`
+      const  note = notes.find(n=> n.id === id)
+      const changeNote = {...note,important: !note.important}
+
+      noteService
+      .update(id,changeNote)
+      .then(returnedNote=>{
+        setNotesState(notes.map(note=>note.id !== id ? note : returnedNote))
+      })
+
+      
+
   }
 
   const notesToShow= showAll ? notes : notes.filter(note =>note.important)
@@ -57,7 +78,7 @@ const App = (props) => {
 
       <ul>
         {notesToShow.map(note => 
-          <Note key={note.id} note={note} />
+          <Note key={note.id} note={note} toggleImportance={()=>toggleImportance(note.id)} />
         )}
       </ul>
       <form onSubmit={addNote}>
