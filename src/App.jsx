@@ -2,6 +2,8 @@ import Note from './components/Note'
 import { useState , useEffect} from 'react'
 import axios from 'axios'
 import noteService from './services/notes'
+import Notificacion from './components/Notificacion'
+import Footer from './components/Footer'
 //comentario otro
 const App = (props) => {
 
@@ -9,6 +11,7 @@ const App = (props) => {
   const[notes,setNotesState]= useState([]);
   const[newNote,setNewNote]= useState('a new note...')
   const[showAll,setShowAll]= useState(true)
+  const[errorMessage,setErrorMessage]=useState(null)
 
   
 
@@ -61,6 +64,14 @@ const App = (props) => {
       .then(returnedNote=>{
         setNotesState(notes.map(note=>note.id !== id ? note : returnedNote))
       })
+      .catch(error=>{
+        setErrorMessage(`${note.content} was already removed from server`)
+        setTimeout(()=>{
+          setErrorMessage(null)
+        },5000)
+        setNotesState(notes.filter(n=>n.id !== id))
+      })
+ 
 
       
 
@@ -72,6 +83,7 @@ const App = (props) => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notificacion message={errorMessage}/>
       <div>
         <button onClick={()=>{setShowAll(!showAll)}}>Show {showAll ? 'Important' : 'All'}</button>
       </div>
@@ -85,6 +97,7 @@ const App = (props) => {
         <input value={newNote} onChange={handleNoteChange}/>
         <button type='submit' >Save</button>
       </form>
+      <Footer/>
     </div>
   )
 }
