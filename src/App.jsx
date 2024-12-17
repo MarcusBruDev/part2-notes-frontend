@@ -8,7 +8,7 @@ import Footer from './components/Footer'
 const App = (props) => {
 
   
-  const[notes,setNotesState]= useState([]);
+  const[notes,setNotesState]= useState(null);
   const[newNote,setNewNote]= useState('a new note...')
   const[showAll,setShowAll]= useState(true)
   const[errorMessage,setErrorMessage]=useState(null)
@@ -25,7 +25,7 @@ const App = (props) => {
       .catch(error=> console.log('Fail'))
 
   }
-  console.log(`render ${notes.length} notes`)
+  
 
   useEffect(hook,[])
  
@@ -75,6 +75,10 @@ const App = (props) => {
 
       
 
+  }
+
+  if(!notes){
+    return
   }
 
   const notesToShow= showAll ? notes : notes.filter(note =>note.important)
