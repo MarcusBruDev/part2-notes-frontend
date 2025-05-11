@@ -1,17 +1,32 @@
 import Note from './components/Note'
-import { useState , useEffect} from 'react'
+import { useState , useEffect,useRef} from 'react'  //useRef es un hook que permite acceder a un elemento del DOM sin necesidad de volver a renderizar el componente
 import axios from 'axios'
 import noteService from './services/notes'
 import Notificacion from './components/Notificacion'
 import Footer from './components/Footer'
+import LoginForm from './components/LoginForm'
+import loginService from './services/login'
+import Togglable from './components/Togglable'
+import NoteForm from './components/NoteForm'
 //comentario otro
+
+
+
 const App = (props) => {
 
   
   const[notes,setNotesState]= useState(null);
-  const[newNote,setNewNote]= useState('a new note...')
+  
   const[showAll,setShowAll]= useState(true)
   const[errorMessage,setErrorMessage]=useState(null)
+  const[userName,setUsername]=useState('')
+  const[password,setPassword]=useState('')
+  const [user,setUser]= useState(null)
+  const [loginVisible,setLoginVisible]= useState(false)
+
+
+  const noteFormRef = useRef()
+
 
   
 
@@ -25,28 +40,51 @@ const App = (props) => {
       .catch(error=> console.log('Fail'))
 
   }
+
+  useEffect(()=>{
+      const loggedUserJSON= window.localStorage.getItem('loggedNoteAppUser')
+      if(loggedUserJSON){
+        const user = JSON.parse(loggedUserJSON)
+       
+        setUser(user)
+        noteService.setToken(user.token)  
+      }
+  },[])
   
 
   useEffect(hook,[])
+
+
+  /// es  un metodo que se encarga de manejar los dartos en el formulario de inicio de sesion
+  const handleLogin = async (event)=>{
+    event.preventDefault()
+
+
+    try{
+      const user = await loginService.login({
+        userName,password,
+      })
+      window.localStorage.setItem('loggedNoteAppUser',JSON.stringify(user))
+      
+      noteService.setToken(user.token)  
+      
+     
+      setUser(user)
+      setUsername('')
+      setPassword('')
+      
+    } catch(exeption){
+      setErrorMessage('Wrong credentials')
+      setTimeout(()=>{
+        setErrorMessage(null)
+      },5000)
+
+    }
+    
+
+  }
  
 
-  const addNote = (event)=>{
-    event.preventDefault();   
-    
-    const newObject = {
-      content: newNote,
-      important : Math.random()< 0.5,
-    }
-
-      noteService
-      .create(newObject)
-      .then(returnedNote=>{
-        setNotesState(notes.concat(returnedNote))
-        setNewNote('')
-      })
-
-   
-  }
 
   const handleNoteChange = (event)=>{
     
@@ -77,31 +115,95 @@ const App = (props) => {
 
   }
 
+
+
+  // se llama funcion auxiliar para crear el formulario de inicio de sesion, se le pasa el evento onSubmit al formulario y se le pasa la funcion handleLogin, que es la que se encarga de manejar los datos del formulario
+  const loginForm = ()=>{
+        const hideWhenVisible = {display: loginVisible ? 'none' : ''}
+        const showWhenVisible = {display: loginVisible ? '' : 'none'}
+
+        return(
+          <div>
+            <div style={hideWhenVisible}>
+              <button onClick={()=>setLoginVisible(true)}>Log-in</button>
+            </div>
+
+
+            <div style={showWhenVisible}>
+              <h1>Log in to application</h1>
+              
+              <LoginForm 
+                handleSubmit={handleLogin}
+                handleUsernameChange={({target})=>setUsername(target.value)}
+                handlePasswordChange={({target})=>setPassword(target.value)}
+                userName={userName}
+                password={password}
+              />
+
+              <button onClick={()=>setLoginVisible(false)}>Cancel</button>
+            </div>
+          </div>
+        )
+
+
+
+  }
+
+  const addNote = (noteObject)=>{
+      noteFormRef.current.toggleVisibility()
+      noteService
+      .create(noteObject)
+      .then(returnedNote=>{
+        setNotesState(notes.concat(returnedNote))
+
+      }) 
+  }
+
+  const noteForm = () => (
+    <Togglable buttonLabel='New Note' ref={noteFormRef}>
+      <NoteForm createNote={addNote}/>
+    </Togglable>
+  )
+  
+
   if(!notes){
     return
   }
 
   const notesToShow= showAll ? notes : notes.filter(note =>note.important)
 
-
+ // {noteForm()}
   return (
     <div>
-      <h1>Notes</h1>
+      
       <Notificacion message={errorMessage}/>
-      <div>
-        <button onClick={()=>{setShowAll(!showAll)}}>Show {showAll ? 'Important' : 'All'}</button>
-      </div>
 
-      <ul>
-        {notesToShow.map(note => 
-          <Note key={note.id} note={note} toggleImportance={()=>toggleImportance(note.id)} />
-        )}
-      </ul>
-      <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleNoteChange}/>
-        <button type='submit' >Save</button>
-      </form>
-      <Footer/>
+      {user === null ?
+      loginForm():
+      <div>
+        
+        <p>{user.name} logged-in</p>
+
+        {noteForm()}
+        
+
+        <h1>Notes</h1>
+        <div>
+          <button onClick={()=>{setShowAll(!showAll)}}>Show {showAll ? 'Important' : 'All'}</button>
+        </div>
+
+        <ul>
+          {notesToShow.map(note => 
+            <Note key={note.id} note={note} toggleImportance={()=>toggleImportance(note.id)} />
+          )}
+        </ul>
+    
+
+        <Footer/>
+      </div>
+      }
+
+
     </div>
   )
 }
