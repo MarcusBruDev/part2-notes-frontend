@@ -13,10 +13,8 @@ import NoteForm from './components/NoteForm'
 
 
 const App = (props) => {
-
   
   const[notes,setNotesState]= useState(null);
-  
   const[showAll,setShowAll]= useState(true)
   const[errorMessage,setErrorMessage]=useState(null)
   const[userName,setUsername]=useState('')
@@ -24,13 +22,8 @@ const App = (props) => {
   const [user,setUser]= useState(null)
   const [loginVisible,setLoginVisible]= useState(false)
 
-
-  const noteFormRef = useRef()
-
-
+  const noteFormRef = useRef() // Se crea una refeeremcia para poder acceder al componente NoteForm y poder ocultarlo cuando se crea una nueva nota.
   
-
-
   const hook = ()=>{
       noteService
       .getAll()
@@ -159,8 +152,8 @@ const App = (props) => {
       }) 
   }
 
-  const noteForm = () => (
-    <Togglable buttonLabel='New Note' ref={noteFormRef}>
+  const noteForm = ()=>(
+    <Togglable buttonLabel="New Note" ref={noteFormRef}>
       <NoteForm createNote={addNote}/>
     </Togglable>
   )
@@ -173,7 +166,7 @@ const App = (props) => {
   const notesToShow= showAll ? notes : notes.filter(note =>note.important)
 
  // {noteForm()}
-  return (
+  return(
     <div>
       
       <Notificacion message={errorMessage}/>
@@ -200,12 +193,7 @@ const App = (props) => {
     
 
         <Footer/>
-      </div>
-      }
-
-
-    </div>
-  )
+      </div>}
+  </div>)
 }
-
 export default App
