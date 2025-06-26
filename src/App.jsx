@@ -12,7 +12,7 @@ import NoteForm from './components/NoteForm'
 
 
 
-const App = (props) => {
+const App = () => {
   
   const[notes,setNotesState]= useState(null);
   const[showAll,setShowAll]= useState(true)
@@ -30,8 +30,7 @@ const App = (props) => {
       .then(initialNote=>{
         setNotesState(initialNote )
       })
-      .catch(error=> console.log('Fail'))
-
+      .catch(error=> console.log('Fail',error))
   }
 
   useEffect(()=>{
@@ -46,6 +45,8 @@ const App = (props) => {
   
 
   useEffect(hook,[])
+
+
 
 
   /// es  un metodo que se encarga de manejar los dartos en el formulario de inicio de sesion
@@ -79,10 +80,13 @@ const App = (props) => {
  
 
 
-  const handleNoteChange = (event)=>{
-    
-    setNewNote(event.target.value)
+  const handleLogout= async ()=>{
+    window.localStorage.removeItem('loggedNoteAppUser')
+    setUser(null)
   }
+
+  
+
 
   const toggleImportance =(id)=>{
       
@@ -118,12 +122,15 @@ const App = (props) => {
         return(
           <div>
             <div style={hideWhenVisible}>
+              <h1>Notes</h1>
               <button onClick={()=>setLoginVisible(true)}>Log-in</button>
+              <Footer></Footer>
             </div>
 
 
             <div style={showWhenVisible}>
-              <h1>Log in to application</h1>
+             
+              <h2>Log in to application</h2>
               
               <LoginForm 
                 handleSubmit={handleLogin}
@@ -134,6 +141,7 @@ const App = (props) => {
               />
 
               <button onClick={()=>setLoginVisible(false)}>Cancel</button>
+              
             </div>
           </div>
         )
@@ -174,13 +182,13 @@ const App = (props) => {
       {user === null ?
       loginForm():
       <div>
-        
-        <p>{user.name} logged-in</p>
-
+       
+        <p id={user.name}>{user.name} logged-in <button onClick={handleLogout}>Logout</button></p>
+        <h1>Notes</h1>
         {noteForm()}
         
 
-        <h1>Notes</h1>
+        <br/>
         <div>
           <button onClick={()=>{setShowAll(!showAll)}}>Show {showAll ? 'Important' : 'All'}</button>
         </div>

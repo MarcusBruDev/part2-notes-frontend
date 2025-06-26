@@ -12,6 +12,7 @@ const LoginForm = ({
       <div>
         Username
         <input 
+       
         type='text'
         value={userName}
         name= "Username"
@@ -37,7 +38,7 @@ const LoginForm = ({
     </form>
   )
 
-LoginForm.PropTypes={
+LoginForm.ropTypes={
     handleSubmit: PropTypes.func.isRequired,
     handleUsernameChange: PropTypes.func.isRequired,
     handlePasswordChange: PropTypes.func.isRequired,
@@ -46,4 +47,4 @@ LoginForm.PropTypes={
 }
 
 
-  export default LoginForm  
+export default LoginForm  

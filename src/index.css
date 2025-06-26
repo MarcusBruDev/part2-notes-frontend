@@ -38,6 +38,13 @@ h1 {
   font-style: italic;
 }
 
+h2 {
+  font-size: 1.2em;
+  line-height: 1.1;
+  color: green;
+  font-style: italic;
+}
+
 
 
 
@@ -49,7 +56,7 @@ h1 {
 
 .error{
 
-    color: red;
+    color: rgb(255, 0, 0);
     background: lightgrey;
     font-size:20px ; 
     border-style: solid;
